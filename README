@@ -1,0 +1,13 @@
+This program is inspired of the tv_grab script written in PERL.
+It is used to grab French programs from telestar.fr in XMLTV format
+(Only the main fields are present)
+It is compiled on debian/jessie with GHC 8.2.2 built from sources
+
+To get help:
+    ./tv_grab_fr -h
+
+To create the configuration file (when the file is created, use # to comment channels):
+   ./tv_grab_fr --configure
+
+To grab programs:
+    ./tv_grab_fr --output-file <outfile> --config-file <conf_file> +RTS -N<processorNb> -RTS

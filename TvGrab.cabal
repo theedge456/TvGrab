@@ -1,0 +1,22 @@
+name: TvGrab
+version: 0.1
+cabal-version: >=2.0
+build-type: Simple
+license: BSD2
+license-file: LICENSE
+synopsis: tv_grab for telestar.fr
+description:  cf README
+data-dir: ""
+
+executable tv_grab_fr
+    build-depends: base ==4.10.1.0, http-client ==0.5.7.1,
+                   http-client-tls ==0.3.5.1, http-conduit -any, http-types ==0.11,
+                   optparse-applicative ==0.14.0.0, regex-compat -any,
+                   split ==0.2.3.2, tagsoup ==0.14.2, time -any,
+                   utf8-string ==1.0.1.1, xml -any
+    main-is: Main.hs
+    buildable: True
+    hs-source-dirs: src
+    other-modules: Common Configuration Options Programs
+    ghc-options: -fprint-potential-instances -rtsopts -threaded
+
