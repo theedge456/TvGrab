@@ -31,8 +31,8 @@ import          Common (printDebug, terminate)
 -- | Grabs the channels for a bouquet
 --
 grabChannels :: [Tag String] -> String -> [String]
-grabChannels tagList bouquet =  take 1
-            $ concatMap pickChannel (sections (~== "<a>")
+grabChannels tagList bouquet =  head
+            $ map pickChannel (sections (~== "<a>")
                 $ takeWhile (~/= "</p>")
                 $ concatMap checkBouquet (sections (~== "<div class=bouquet>")
                      $ dropWhile (~/= "<div class=page-bouquets>") tagList))
