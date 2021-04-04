@@ -2,6 +2,7 @@ This program is inspired of the tv_grab script written in PERL.
 It is used to grab French programs from telestar.fr in XMLTV format
 (Only the main fields are present)
 It is compiled on debian/jessie with GHC 8.2.2 built from sources
+Install Cabal 2.0 and cabal-install 2.2 before creating a sandbox 
 
 To get help:
     ./tv_grab_fr -h

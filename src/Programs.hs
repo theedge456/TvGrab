@@ -22,7 +22,7 @@ import           Network.HTTP.Client hiding (IsString)
 import           Network.HTTP.Client.TLS (tlsManagerSettings)
 import           Network.HTTP.Simple
 import           Text.Regex (splitRegex, mkRegex, matchRegex)
-import           Network.HTTP.Types.Status (statusCode, statusIsSuccessful)
+import           Network.HTTP.Types.Status (statusCode, statusIsSuccessful, status200, status410)
 import           Text.XML.Light
 import           Text.HTML.TagSoup
 import           Text.HTML.TagSoup.Match
@@ -60,7 +60,7 @@ selectTags tag !level !res tl = case tl of
 -- {-# SCC getProgramDetails "mySccGetProgramDetails" #-}
 getProgramDetails :: Bool -> String -> IO [Element]
 getProgramDetails dbg url = do
-    printDebug dbg $ "(dgb) getProgramDetails: url=" ++ rootUrl ++ url
+    printDebug dbg $ "(dbg) getProgramDetails: url=" ++ rootUrl ++ url
     req <- try $ parseRequest $ rootUrl ++ url
     case req of
       Left e -> do
@@ -70,10 +70,10 @@ getProgramDetails dbg url = do
       Right rq -> do
         !httpRsp <- httpLBS rq
         let s = responseStatus httpRsp in
-            if statusIsSuccessful s
+            if s==status200 || s==status410
             then do
-              printDebug dbg $ "(dgb) getProgramDetails: status code="
-                ++ show (statusCode $ responseStatus httpRsp)
+              printDebug dbg $ "(dbg) getProgramDetails: status code="
+                ++ show (statusCode s)
               let -- {-# SCC tl "myScc_tl" #-}
                   !tl = parseTags $ U8.toString $ getResponseBody httpRsp
                   !progInfo = selectTags "div" 0 []
@@ -129,14 +129,14 @@ getProgramDetails dbg url = do
                             ) $ map grabCredits $ sections (~== "<div class=col-xs-12>")
                       $ selectTags "div" 0 []
                       $ dropWhile (~/= "<div class=block-casting id=block-casting>") tl
-              printDebug dbg $ "(dgb) getProgramDetails: headInfo=" ++ concatMap showElement headInfo
-              printDebug dbg $ "(dgb) getProgramDetails: desc=" ++ concatMap showElement desc
-              printDebug dbg $ "(dgb) getProgramDetails: review=" ++ concatMap showElement review
-              printDebug dbg $ "(dgb) getProgramDetails: credits=" ++ concatMap showElement credits
+              printDebug dbg $ "(dbg) getProgramDetails: headInfo=" ++ concatMap showElement headInfo
+              printDebug dbg $ "(dbg) getProgramDetails: desc=" ++ concatMap showElement desc
+              printDebug dbg $ "(dbg) getProgramDetails: review=" ++ concatMap showElement review
+              printDebug dbg $ "(dbg) getProgramDetails: credits=" ++ concatMap showElement credits
               return $ headInfo ++ desc ++  review ++ credits
             else do
                  print $ "getProgramDetails:httpLBS:skipping URL:" ++ rootUrl ++ url
-                 printDebug dbg $ "(dgb) getProgramDetails:httpLBS:status code="
+                 printDebug dbg $ "(dbg) getProgramDetails:httpLBS:status code="
                         ++ show (statusCode s)
                  return []
     where -- {-# SCC grabCredits #-}
@@ -215,7 +215,7 @@ processChannel dbg !tagList days offset !channelName fHandle = do
       where -- {-# SCC processPrograms #-}
             processPrograms :: [[Tag String]] -> TvOptDays -> ZonedTime -> String -> IO ()
             processPrograms tl !ofs tz cn = do
-                   printDebug dbg $ "(dgb) processing channel:" ++ cn
+                   printDebug dbg $ "(dbg) processing channel:" ++ cn
                         ++ ":offset:" ++ show (fromIntegral ofs)
                    case tl of
                            [] -> return ()
@@ -270,7 +270,7 @@ pickPrograms  dbg url channelList days offset outFile = do
             processRequest fHandle !urls = case urls of
                                              [] -> return ()
                                              u:us -> do
-                                                printDebug dbg $ "(dgb) processRequest: URL=" ++ u
+                                                printDebug dbg $ "(dbg) processRequest: URL=" ++ u
                                                 req <- try $ parseRequest u
                                                 case req of
                                                   Left e -> do
@@ -279,7 +279,7 @@ pickPrograms  dbg url channelList days offset outFile = do
                                                   Right rq -> do
                                                      !httpRsp <- httpLBS rq -- mgr
                                                      let s = responseStatus httpRsp
-                                                     printDebug dbg $ "(dgb) processRequest:httpLBS:status code="
+                                                     printDebug dbg $ "(dbg) processRequest:httpLBS:status code="
                                                             ++ show (statusCode s)
                                                      case statusIsSuccessful s of
                                                         True -> processChannel dbg (parseTags $! U8.toString $ getResponseBody httpRsp)
